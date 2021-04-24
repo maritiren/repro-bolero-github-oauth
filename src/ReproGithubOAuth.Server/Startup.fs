@@ -1,7 +1,9 @@
 namespace ReproGithubOAuth.Server
 
 open Microsoft.AspNetCore
+open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Authentication.Cookies
+open Microsoft.AspNetCore.Authentication.OAuth
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.DependencyInjection
@@ -20,8 +22,23 @@ type Startup() =
         services.AddServerSideBlazor() |> ignore
         services
             .AddAuthorization()
-            .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie()
+            .AddAuthentication(fun options ->
+                options.DefaultAuthenticateScheme <- CookieAuthenticationDefaults.AuthenticationScheme
+                options.DefaultSignInScheme <- CookieAuthenticationDefaults.AuthenticationScheme
+                options.DefaultChallengeScheme <- "GitHub"
+            )
+                .AddCookie(fun config ->
+                    config.Cookie.SameSite <- SameSiteMode.None
+                    config.Cookie.SecurePolicy <- CookieSecurePolicy.Always
+                )
+                .AddGitHub(fun options ->
+                    options.ClientId <- "GitHub ClientId";
+                    options.ClientSecret <- "GitHub Client Secret"; 
+                    options.CallbackPath <- new PathString("/github-oauth");
+                    options.AuthorizationEndpoint <- "https://github.com/login/oauth/authorize";
+                    options.TokenEndpoint <- "https://github.com/login/oauth/access_token";
+                    options.UserInformationEndpoint <- "https://api.github.com/user";
+                )
                 .Services
             .AddRemoting<BookService>()
             .AddBoleroHost()

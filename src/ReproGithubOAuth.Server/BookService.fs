@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Text.Json
 open System.Text.Json.Serialization
+open Microsoft.AspNetCore.Authentication
 open Microsoft.AspNetCore.Hosting
 open Bolero
 open Bolero.Remoting
@@ -32,12 +33,12 @@ type BookService(ctx: IRemoteContext, env: IWebHostEnvironment) =
                 books.RemoveAll(fun b -> b.isbn = isbn) |> ignore
             }
 
-            signIn = fun (username, password) -> async {
-                if password = "password" then
-                    do! ctx.HttpContext.AsyncSignIn(username, TimeSpan.FromDays(365.))
-                    return Some username
-                else
-                    return None
+            signIn = fun () -> async {
+                let! res = Async.AwaitTask (ctx.HttpContext.ChallengeAsync "GitHub")
+                printfn $"res: {res}"
+                // Do some parsing of request
+                // Never gets this far, so returning whatever
+                return option.Some "myusername"
             }
 
             signOut = fun () -> async {

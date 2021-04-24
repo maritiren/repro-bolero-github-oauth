@@ -60,7 +60,7 @@ type BookService =
         removeBookByIsbn: string -> Async<unit>
 
         /// Sign into the application.
-        signIn : string * string -> Async<option<string>>
+        signIn : unit -> Async<string option>
 
         /// Get the user's name, or None if they are not authenticated.
         getUsername : unit -> Async<string>
@@ -121,7 +121,7 @@ let update remote message model =
     | RecvSignedInAs username ->
         { model with signedInAs = username }, onSignIn username
     | SendSignIn ->
-        model, Cmd.OfAsync.either remote.signIn (model.username, model.password) RecvSignIn Error
+        model, Cmd.OfAsync.either remote.signIn () RecvSignIn Error
     | RecvSignIn username ->
         { model with signedInAs = username; signInFailed = Option.isNone username }, onSignIn username
     | SendSignOut ->
@@ -171,18 +171,7 @@ let dataPage model (username: string) dispatch =
 
 let signInPage model dispatch =
     Main.SignIn()
-        .Username(model.username, fun s -> dispatch (SetUsername s))
-        .Password(model.password, fun s -> dispatch (SetPassword s))
         .SignIn(fun _ -> dispatch SendSignIn)
-        .ErrorNotification(
-            cond model.signInFailed <| function
-            | false -> empty
-            | true ->
-                Main.ErrorNotification()
-                    .HideClass("is-hidden")
-                    .Text("Sign in failed. Use any username and the password \"password\".")
-                    .Elt()
-        )
         .Elt()
 
 let menuItem (model: Model) (page: Page) (text: string) =

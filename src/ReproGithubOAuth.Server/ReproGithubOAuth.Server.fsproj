@@ -13,5 +13,6 @@
     <PackageReference Include="Bolero.HotReload.Server" Version="0.*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.*" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.*" />
+	<PackageReference Include="AspNet.Security.OAuth.GitHub" Version="5.0.*" />
   </ItemGroup>
 </Project>
