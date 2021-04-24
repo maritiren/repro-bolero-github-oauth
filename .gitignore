@@ -1,0 +1,14 @@
+*~
+*.swp
+**/lib/debug
+**/lib/release
+**/Debug
+*.suo
+*.user
+**/obj
+**/bin
+*.exe
+*.cache
+
+.fake
+.ionide
